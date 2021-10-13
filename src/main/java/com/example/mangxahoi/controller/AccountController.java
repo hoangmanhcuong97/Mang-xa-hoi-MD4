@@ -18,6 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = "*")
@@ -98,5 +101,59 @@ public class AccountController {
         serviceComment.remove(idComment);
         return new ResponseEntity<>("Ok", HttpStatus.OK);
     }
+    @PostMapping("/searchfriend")
+    public ResponseEntity<Account> searchFriend(@RequestBody Account account) {
+        Account account1 = serviceAccount.loadUserByEmail(account.getEmail());
+        if (account1 != null) {
+            return new ResponseEntity<>(account1, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(account, HttpStatus.BAD_REQUEST);
+        }
+    }
 
+    @GetMapping("/sendaddfriend/{idAcc}/{idFriend}")
+    public ResponseEntity<String> sendAddFriend(@PathVariable("idAcc") Long idAcc, @PathVariable("idFriend") Long idFriend) {
+        Account account = serviceAccount.findById(idAcc).get();
+        Account friend = serviceAccount.findById(idFriend).get();
+        Friend friend1 = serviceFriend.findByAccount_IdAndAccount_Id(account, friend);
+        Friend friend2 = serviceFriend.findByAccount_IdAndAccount_Id(friend, account);
+        if (friend1 == null && friend2 == null) {
+            Friend newFriend = new Friend();
+            newFriend.setAccount(account);
+            newFriend.setFriend(friend);
+            newFriend.setStatus(false);
+            serviceFriend.save(newFriend);
+            return new ResponseEntity<>("Ok", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("exits", HttpStatus.OK);
+    }
+
+    @GetMapping("/showfriend/{idAcc}")
+    public ResponseEntity<List<Account>> showListFriend(@PathVariable("idAcc") Long idAcc) {
+        Account account = serviceAccount.findById(idAcc).get();
+        List<Friend> list = serviceFriend.findAllByIdAcc(account, true, account, true);
+        List<Account> accountList = new ArrayList<>();
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getAccount().getId() == idAcc) {
+                    accountList.add(list.get(i).getFriend());
+                } else {
+                    accountList.add(list.get(i).getAccount());
+                }
+            }
+        }
+        return new ResponseEntity<>(accountList, HttpStatus.OK);
+    }
+    @GetMapping("/showrequestfriend/{idAcc}")
+    public ResponseEntity<List<Account>> showRequestFriend(@PathVariable("idAcc") Long idAcc) {
+        Account account = serviceAccount.findById(idAcc).get();
+        List<Friend> list = serviceFriend.findFriendByIdAcc(account, false);
+        List<Account> accountList = new ArrayList<>();
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                accountList.add(list.get(i).getAccount());
+            }
+        }
+        return new ResponseEntity<>(accountList, HttpStatus.OK);
+    }
 }
