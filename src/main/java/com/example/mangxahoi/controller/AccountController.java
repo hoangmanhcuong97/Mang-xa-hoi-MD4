@@ -86,4 +86,20 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/comment/{idAcc}/{idPost}")
+    public ResponseEntity<String> createComment(@RequestBody Comment comment, @PathVariable("idAcc") Long idAcc, @PathVariable("idPost") Long idPost) {
+        Account account = serviceAccount.findById(idAcc).get();
+        Post post = servicePost.findById(idPost).get();
+        comment.setAccount(account);
+        comment.setPost(post);
+        serviceComment.save(comment);
+        return new ResponseEntity<>("Ok", HttpStatus.OK);
+    }
+
+    @GetMapping("/deletecomment/{idComment}")
+    public ResponseEntity<String> deleteComment(@PathVariable("idComment") Long idComment) {
+        serviceComment.remove(idComment);
+        return new ResponseEntity<>("Ok", HttpStatus.OK);
+    }
+
 }
