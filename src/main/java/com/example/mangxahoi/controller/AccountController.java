@@ -1,9 +1,6 @@
 package com.example.mangxahoi.controller;
 
-import com.example.mangxahoi.model.Account;
-import com.example.mangxahoi.model.AccountLike;
-import com.example.mangxahoi.model.Image;
-import com.example.mangxahoi.model.Post;
+import com.example.mangxahoi.model.*;
 import com.example.mangxahoi.service.account.IServiceAccount;
 import com.example.mangxahoi.service.accountlike.IServiceLike;
 import com.example.mangxahoi.service.comment.IServiceComment;
